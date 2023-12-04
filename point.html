@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Canvas</title>
+    <style>
+        canvas {
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+        This browser doesn't support canvas object.
+    </canvas>
+    <script>
+        const gl = document.getElementById('canvas').getContext('webgl');
+
+        /**
+         * Step 1: Create the shader source code
+         */
+
+        const VERTEX_SHADER_SOURCE = `
+            void main() {
+                // Point cordination
+                // (x, y, z, w) => (x/w, y/w, z/w)
+                gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+                // Point size
+                gl_PointSize = 50.0;
+            }
+        `;
+
+        const FRAGMENT_SHADER_SOURCE = `
+            void main() {
+                // (r, g, b, a)
+                gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+            }
+        `;
+
+        /**
+         * Step 2: Create shader
+         */
+        
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        
+        // Attach shader source code to the shader object
+        gl.shaderSource(vertexShader, VERTEX_SHADER_SOURCE);
+        gl.shaderSource(fragmentShader, FRAGMENT_SHADER_SOURCE);
+
+        /**
+         * Step 3: Compile shader
+         */
+
+        gl.compileShader(vertexShader);
+        gl.compileShader(fragmentShader);
+
+        /**
+         * Step 4: Create program
+         */
+        
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+
+        /**
+         * Step 5: Link and use program
+         */
+        
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        /**
+         * Step 6: Draw
+         */
+
+        gl.drawArrays(gl.POINTS, 0, 1);
+    </script>
+</body>
+</html>

@@ -5,6 +5,9 @@
 - CanvasRenderingContext2D
 - canvas.getContext('2d')
 
+### Canvas Coordinate Space
+The origin of the canvas coordinate space is the top-left corner of the canvas element. The x-axis is horizontal and positive to the right, and the y-axis is vertical and positive downwards.
+
 ## WebGL API
 __WebGL__ is based on __OpenGL ES 2.0__, and __WebGL 2__ is based on __OpenGL ES 3.0__.
 
