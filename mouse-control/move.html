@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Canvas</title>
+    <script src="../lib/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            margin: 50px auto 0;
+            display: block;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+        This browser doesn't support canvas object.
+    </canvas>
+    <script>
+        const ctx = document.getElementById('canvas');
+        const gl = ctx.getContext('webgl');
+
+        const VERTEX_SHADER_SOURCE = `
+            attribute vec4 aPosition;
+            void main() {
+                gl_Position = aPosition;
+                gl_PointSize = 30.0;
+            }
+        `;
+
+        const FRAGMENT_SHADER_SOURCE = `
+            void main() {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        `;
+        
+        const program = initShader(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+
+        const aPosition = gl.getAttribLocation(program, 'aPosition');
+
+        ctx.onmousemove = function(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+
+            const domPosition = event.target.getBoundingClientRect();
+            console.log(domPosition, ctx.offsetLeft, ctx.offsetTop);
+
+            const localX = x - domPosition.left;
+            const localY = y - domPosition.top;
+
+            const halfWidth = domPosition.width / 2;
+            console.log(domPosition.width, ctx.offsetWidth);
+            const halfHeight = domPosition.height / 2;
+            console.log(domPosition.height, ctx.offsetHeight);
+
+            const translateX = (localX - halfWidth) / halfWidth;
+            const translateY = (halfHeight - localY) / halfHeight;
+            console.log(translateX, translateY);
+
+            gl.vertexAttrib2f(aPosition, translateX, translateY);
+            gl.drawArrays(gl.POINTS, 0, 1);
+        }
+    </script>
+</body>
+</html>
