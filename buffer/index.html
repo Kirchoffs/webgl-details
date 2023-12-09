@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Canvas</title>
+    <script src="../lib/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            margin: 50px auto 0;
+            display: block;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+        This browser doesn't support canvas object.
+    </canvas>
+    <script>
+        const ctx = document.getElementById('canvas');
+        const gl = ctx.getContext('webgl');
+
+        const VERTEX_SHADER_SOURCE = `
+            attribute vec4 aPosition;
+            void main() {
+                gl_Position = aPosition;
+                gl_PointSize = 10.0;
+            }
+        `;
+
+        const FRAGMENT_SHADER_SOURCE = `
+            precision mediump float;
+            uniform vec2 uColor;
+            void main() {
+                gl_FragColor = vec4(uColor.r, uColor.g, 0.0, 1.0);
+            }
+        `;
+        
+        const program = initShader(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+
+        const aPosition = gl.getAttribLocation(program, 'aPosition');
+
+        const points = new Float32Array([
+            -0.5, -0.5,
+             0.5, -0.5,
+             0.0,  0.5,
+        ]);
+
+        // Create buffer object
+        const buffer = gl.createBuffer();
+
+        // Bind buffer object to target
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+        // Write data into buffer object
+        gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+
+        // Assign buffer object to aPosition variable
+        gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // Enable attribute variable
+        gl.enableVertexAttribArray(aPosition);
+
+        gl.drawArrays(gl.POINTS, 0, 3);
+    </script>
+</body>
+</html>

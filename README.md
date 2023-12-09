@@ -21,7 +21,7 @@ __WebGL__ is based on __OpenGL ES 2.0__, and __WebGL 2__ is based on __OpenGL ES
 The origin of the WebGL coordinate space is the center of the canvas element. The x-axis is horizontal and positive to the right, and the y-axis is vertical and positive upwards.
 
 ### Right Handed Coordinate System
-The WebGL coordinate system is a right handed coordinate system. This means that the positive z-axis comes out of the screen towards the viewer.
+The WebGL coordinate system is a __right handed__ coordinate system. This means that the positive z-axis comes out of the screen towards the viewer.
 
 For right handed coordinate system, thumb points to x-axis, index finger points to y-axis, and middle finger points to z-axis.
 

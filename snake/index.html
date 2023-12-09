@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Canvas</title>
+    <script src="../lib/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            margin: 50px auto 0;
+            display: block;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+        This browser doesn't support canvas object.
+    </canvas>
+    <script>
+        const ctx = document.getElementById('canvas');
+        const gl = ctx.getContext('webgl');
+
+        const VERTEX_SHADER_SOURCE = `
+            attribute vec4 aPosition;
+            void main() {
+                gl_Position = aPosition;
+                gl_PointSize = 15.0;
+            }
+        `;
+
+        const FRAGMENT_SHADER_SOURCE = `
+            void main() {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        `;
+        
+        const program = initShader(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+        const aPosition = gl.getAttribLocation(program, 'aPosition');
+
+        let snake_points = [{
+            x: 0,
+            y: 0,
+        }];
+        const fruit_point = {
+            isPresent: false,
+        }
+        let base = 1.5;
+
+        let originalSpeed = 0.04;
+        let speed = originalSpeed;
+        let direction = 'x';
+        document.onkeydown = event => {
+            switch(event.keyCode) {
+                case 37: // left
+                    direction = 'x';
+                    speed = -originalSpeed;
+                    break;
+                case 38: // up
+                    direction = 'y';
+                    speed = originalSpeed;
+                    break;
+                case 39: // right
+                    direction = 'x';
+                    speed = originalSpeed;
+                    break;
+                case 40: // down
+                    direction = 'y';
+                    speed = -originalSpeed;
+                    break;
+            }
+        }
+
+        const delta = 0.05
+        function createRandom() {
+            if (!fruit_point.isPresent) {
+                fruit_point.x = Math.random() * 2 - 1;
+                fruit_point.x = Math.min(fruit_point.x, 1 - delta);
+                fruit_point.x = Math.max(fruit_point.x, -1 + delta);
+
+                fruit_point.y = Math.random() * 2 - 1;
+                fruit_point.y = Math.min(fruit_point.y, 1 - delta);
+                fruit_point.y = Math.max(fruit_point.y, -1 + delta);
+
+                fruit_point.isPresent = true;
+            }
+        }
+
+        function draw() {
+            gl.vertexAttrib3f(aPosition, fruit_point.x, fruit_point.y, 0.0);
+            gl.drawArrays(gl.POINTS, 0, 1);
+
+            let preX = null;
+            let preY = null;
+            for (let i = 0; i < snake_points.length; i++) {
+                if (i == 0) {
+                    preX = snake_points[i].x;
+                    preY = snake_points[i].y;
+
+                    snake_points[i][direction] += speed;
+                } else {
+                    let {x, y} = snake_points[i];
+                    snake_points[i].x = preX;
+                    snake_points[i].y = preY;
+
+                    preX = x;
+                    preY = y;
+                }
+
+                const point = snake_points[i];
+                gl.vertexAttrib3f(aPosition, point.x, point.y, 0.0);
+                gl.drawArrays(gl.POINTS, 0, 1);
+            }
+        }
+
+        let timer = null;
+        function start() {
+            timer = setInterval(() => {
+                const snake_head_x = snake_points[0].x;
+                const snake_head_y = snake_points[0].y;
+                if (snake_head_x > 1 || snake_head_x < -1 || snake_head_y > 1 || snake_head_y < -1) {
+                    alert('Game Over!');
+                    restart();
+                }
+
+                if (
+                    snake_head_x > fruit_point.x - base * originalSpeed && 
+                    snake_head_x < fruit_point.x + base * originalSpeed && 
+                    snake_head_y > fruit_point.y - base * originalSpeed && 
+                    snake_head_y < fruit_point.y + base * originalSpeed
+                ) {
+                    console.log('Eat');
+                    fruit_point.isPresent = false;
+                    snake_points.push({
+                        x: -1,
+                        y: -1,
+                    });
+                }
+
+                createRandom();
+                draw();
+            }, 100);
+        }
+
+        start();
+
+        function restart() {
+            clearInterval(timer);
+            snake_points = [{
+                x: 0,
+                y: 0
+            }];
+            direction = 'x';
+            speed = originalSpeed;
+            start();
+        }
+    </script>
+</body>
+</html>
